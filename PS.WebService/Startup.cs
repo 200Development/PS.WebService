@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Cors;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -8,7 +10,7 @@ namespace PS.WebService
 {
     public class Startup
     {
-        private readonly string MyAllowSpecificOrigin = "http://localhost:4200";
+        // private readonly string MyAllowSpecificOrigin = "http://localhost:4200";
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -19,14 +21,14 @@ namespace PS.WebService
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCors(options =>
-            {
-                options.AddPolicy(name: MyAllowSpecificOrigin,
-                    builder =>
+            services.AddCors(options => options.AddPolicy(name: "MyPolicy", builder =>
                     {
-                        builder.WithOrigins("http://localhost:4200");
-                    });
-            });
+                        builder.WithOrigins("http://localhost:4200")
+                            .AllowAnyMethod()
+                            .AllowAnyHeader();
+                    }));
+
+            services.AddMvc();
             services.AddControllers();
         }
 
@@ -41,7 +43,7 @@ namespace PS.WebService
             app.UseHttpsRedirection();
             app.UseRouting();
 
-            app.UseCors(MyAllowSpecificOrigin);
+            app.UseCors("MyPolicy");
 
             app.UseAuthorization();
 
