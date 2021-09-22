@@ -8,7 +8,9 @@ namespace PS.WebService
 {
     public class Startup
     {
-        private readonly string MyAllowSpecificOrigin = "http://localhost:4200";
+        private readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+        private readonly string AllowAllOriginsPolicy = "_allowAllOriginsPolicy";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -21,11 +23,12 @@ namespace PS.WebService
         {
             services.AddCors(options =>
             {
-                options.AddPolicy(name: MyAllowSpecificOrigin,
-                    builder =>
-                    {
-                        builder.WithOrigins("http://localhost:4200");
-                    });
+                options.AddPolicy(AllowAllOriginsPolicy, builder =>
+                {
+                    builder.AllowAnyOrigin()
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+                });
             });
             services.AddControllers();
         }
@@ -39,9 +42,10 @@ namespace PS.WebService
             }
 
             app.UseHttpsRedirection();
+            app.UseStaticFiles();
             app.UseRouting();
 
-            app.UseCors(MyAllowSpecificOrigin);
+            app.UseCors(AllowAllOriginsPolicy);
 
             app.UseAuthorization();
 
