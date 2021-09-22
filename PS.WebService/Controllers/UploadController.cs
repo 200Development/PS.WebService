@@ -1,5 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using System.IO;
+using System.Threading.Tasks;
+using Azure.Storage.Blobs;
+using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Mvc;
 using System;
+
 
 namespace PS.WebService.Controllers
 {
@@ -7,23 +13,35 @@ namespace PS.WebService.Controllers
     [ApiController]
     public class UploadController : Controller
     {
+
         [HttpPost]
-        public IActionResult UploadVideo([FromForm] dynamic video)
         {
             try
             {
                 return Ok();
             }
             catch(Exception e)
-            {
+                    {
                 return StatusCode(500, e);
-            }
-        }
+                    }
+                }
 
         [HttpGet]
         public IActionResult Test()
-        {
-            return Ok();
+                {
+                    await blobClient.UploadAsync(uploadFileStream, true);
+                    uploadFileStream.Close();
+                }
+
+
+                return Ok();
+
+
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, $"Internal Server Error: {e}");
+            }
         }
     }
 }
