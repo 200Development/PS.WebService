@@ -38,12 +38,7 @@ namespace PS.WebService.Library
 
                 Console.Error.WriteLine($"{exception.Message}");
 
-                ApiErrorException apiException = exception.GetBaseException() as ApiErrorException;
-                if (apiException != null)
-                {
-                    Console.Error.WriteLine(
-                        $"ERROR: API call failed with error code '{apiException.Body.Error.Code}' and message '{apiException.Body.Error.Message}'.");
-                }
+              
 
                 throw exception;
             }
@@ -151,11 +146,7 @@ namespace PS.WebService.Library
             }
             catch (Exception exception)
             {
-                if (exception.GetBaseException() is ApiErrorException apiException)
-                {
-                    Console.Error.WriteLine(
-                        $"ERROR: API call failed with error code '{apiException.Body.Error.Code}' and message '{apiException.Body.Error.Message}'.");
-                }
+               
                 throw exception;
             }
 
@@ -194,11 +185,7 @@ namespace PS.WebService.Library
             }
             catch (Exception exception)
             {
-                if (exception.GetBaseException() is ApiErrorException apiException)
-                {
-                    Console.Error.WriteLine(
-                        $"ERROR: API call failed with error code '{apiException.Body.Error.Code}' and message '{apiException.Body.Error.Message}'.");
-                }
+               
                 throw exception;
             }
 

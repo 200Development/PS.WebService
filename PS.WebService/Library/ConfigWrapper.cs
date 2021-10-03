@@ -56,5 +56,10 @@ namespace PS.WebService.Library
         {
             get { return new Uri(_config["ArmEndpoint"]); }
         }
+
+        public string UploadFolderPath
+        {
+            get { return _config["UploadFolderPath"]; }
+        }
     }
 }

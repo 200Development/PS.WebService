@@ -1,11 +1,11 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-using Azure.Storage.Blobs;
-using Microsoft.AspNetCore.Cors;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using PS.WebService.Library;
 using System;
-
+using System.IO;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
 
 namespace PS.WebService.Controllers
 {
@@ -15,33 +15,49 @@ namespace PS.WebService.Controllers
     {
 
         [HttpPost]
+        public async Task<IActionResult> UploadVideoAsync([FromForm] IFormFile file)
         {
+
             try
             {
-                return Ok();
-            }
-            catch(Exception e)
-                    {
-                return StatusCode(500, e);
-                    }
-                }
+                ConfigWrapper config = new ConfigWrapper(new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddEnvironmentVariables()
+                .Build());
 
-        [HttpGet]
-        public IActionResult Test()
+                var azureMediaService = new MediaServicesManagementClient(config);
+
+               
+
+                if (file.Length > 0)
                 {
-                    await blobClient.UploadAsync(uploadFileStream, true);
-                    uploadFileStream.Close();
+                    var fileName = GetFileName(file);
+                    var filePath = Path.Combine(config.UploadFolderPath, file.FileName);
+                    using Stream fileStream = new FileStream(filePath, FileMode.Create);
+                    await file.CopyToAsync(fileStream);
+
+                    var uploadResponse = await azureMediaService.CreateInputAssetAsync(file.FileName, filePath);
+                }
+                else
+                {
+                    return NoContent();
                 }
 
-
                 return Ok();
-
-
             }
             catch (Exception e)
             {
-                return StatusCode(500, $"Internal Server Error: {e}");
+                return BadRequest(e.Message);
             }
+        }
+
+        private string GetFileName(IFormFile file)
+        {
+            return ContentDispositionHeaderValue
+                    .Parse(file.ContentDisposition)
+                    .FileName
+                    .Trim('"');
         }
     }
 }
